@@ -36,8 +36,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         for (PurchaseDetail purchaseDetail: purchase.getPurchaseDetails()) {
             purchaseDetail.setPurchase(purchase1);
             Book book = bookService.getBookById(purchaseDetail.getBook().getId());
+            if (book.getStock() == 0)
+                throw new ResourceNotFoundException("Book is out of stock");
             if (book.getStock() < purchaseDetail.getQuantity()) {
-                String message = String.format(ResponseMessage.BAD_REQUEST, book.getStock(), purchaseDetail.getQuantity());
+                String message = String.format(ResponseMessage.BAD_REQUEST, book.getStock(), purchaseDetail.getQuantity(), book.getTitle());
                 throw new ResourceNotFoundException(message);
             }
             book.setStock(book.getStock()- purchaseDetail.getQuantity());
