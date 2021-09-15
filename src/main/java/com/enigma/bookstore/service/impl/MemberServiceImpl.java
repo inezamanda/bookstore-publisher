@@ -21,7 +21,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member getMemberById(Integer id) {
+    public Member getMemberById(String id) {
         verify(id);
         return memberRepository.getById(id);
     }
@@ -38,12 +38,12 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void deleteMember(Integer id) {
+    public void deleteMember(String id) {
         verify(id);
         memberRepository.deleteById(id);
     }
 
-    private void verify (Integer id) {
+    private void verify (String id) {
         if (!memberRepository.findById(id).isPresent()){
             String message = String.format(ResponseMessage.NOT_FOUND_MESSAGE, "member", id);
             throw new ResourceNotFoundException(message);

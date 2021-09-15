@@ -6,6 +6,8 @@ import com.enigma.bookstore.repository.BookRepository;
 import com.enigma.bookstore.service.BookService;
 import exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book getBookById(Integer id) {
+    public Book getBookById(String id) {
         verify(id);
         return bookRepository.findById(id).get();
     }
@@ -38,12 +40,22 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteBook(Integer id) {
+    public void deleteBook(String id) {
         verify(id);
         bookRepository.deleteById(id);
     }
 
-    private void verify (Integer id) {
+    @Override
+    public Page<Book> getBookPerPage(Pageable pageable) {
+        return bookRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Book> searchBookByTitle(String title) {
+        return bookRepository.findBookByTitleContaining(title);
+    }
+
+    private void verify (String id) {
         if (!bookRepository.findById(id).isPresent()){
             String message = String.format(ResponseMessage.NOT_FOUND_MESSAGE, "book", id);
             throw new ResourceNotFoundException(message);
