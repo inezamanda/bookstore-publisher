@@ -37,6 +37,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Member member = memberService.getMemberById(purchase.getMember().getId());
         purchase1.setMember(member);
 
+        Double grandTotal = 0.0;
         for (PurchaseDetail purchaseDetail: purchase.getPurchaseDetails()) {
             purchaseDetail.setPurchase(purchase1);
             Book book = bookService.getBookById(purchaseDetail.getBook().getId());
@@ -54,6 +55,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDetail.setPriceSell((double) (book.getPrice() * purchaseDetail.getQuantity()));
             purchaseDetail.setBook(book);
             purchaseDetailService.savePurchaseDetail(purchaseDetail);
+
+            purchase1.setGrandTotal(grandTotal+=purchaseDetail.getPriceSell());
         }
 
         return purchase1;
