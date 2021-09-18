@@ -59,4 +59,9 @@ public class BookController {
     public List<Book> searchBookByTitle (@RequestParam String title) {
         return bookService.searchBookByTitle(title);
     }
+
+    @GetMapping("/year/{year}")
+    public List<Book> searchBookByYear (@PathVariable Integer year) {
+        return bookService.getBooksByYear(year);
+    }
 }

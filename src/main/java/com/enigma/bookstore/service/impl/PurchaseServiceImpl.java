@@ -1,5 +1,6 @@
 package com.enigma.bookstore.service.impl;
 
+import com.enigma.bookstore.config.KafkaConfig;
 import com.enigma.bookstore.constant.ResponseMessage;
 import com.enigma.bookstore.entity.Book;
 import com.enigma.bookstore.entity.Member;
@@ -10,8 +11,11 @@ import com.enigma.bookstore.service.BookService;
 import com.enigma.bookstore.service.MemberService;
 import com.enigma.bookstore.service.PurchaseDetailService;
 import com.enigma.bookstore.service.PurchaseService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +33,15 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     MemberService memberService;
 
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Override
     @Transactional
-    public Purchase transaction(Purchase purchase) {
+    public void transaction(Purchase purchase) throws JsonProcessingException {
         Purchase purchase1 = purchaseRepository.save(purchase);
 
         Member member = memberService.getMemberById(purchase.getMember().getId());
@@ -59,6 +69,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchase1.setGrandTotal(grandTotal+=purchaseDetail.getPriceSell());
         }
 
-        return purchase1;
+        String response = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(purchase1);
+        this.kafkaTemplate.send(KafkaConfig.TOPIC, response);
     }
 }
